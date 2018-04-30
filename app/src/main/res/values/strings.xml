@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">PopularMovies</string>
+    <string name="moviedb_api">fb3ae32b98663668e866118ececfba72</string>
+
+    <string name="moviedb_popular">Popular</string>
+    <string name="moviedb_top_rated">Top Rated</string>
 </resources>
