@@ -3,8 +3,11 @@ package popularmovies.udacity.com.popularmovies;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -14,15 +17,25 @@ import popularmovies.udacity.com.popularmovies.utils.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView testMoviedbApi_tv;
+    private static final int NUM_LiST_ITEMS = 100;
+
+    private MovieAdapter mMovieAdapter;
+    private RecyclerView mMoviesGrid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        testMoviedbApi_tv = (TextView) findViewById(R.id.textView);
-        makeMoviedbSearchQuery("popular");
+        mMoviesGrid = (RecyclerView) findViewById(R.id.rv_movies);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mMoviesGrid.setLayoutManager(layoutManager);
+
+        mMoviesGrid.setHasFixedSize(true);
+
+        mMovieAdapter = new MovieAdapter(NUM_LiST_ITEMS);
+        mMoviesGrid.setAdapter(mMovieAdapter);
     }
 
     private void makeMoviedbSearchQuery(String movieQuery) {
@@ -34,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             if (s != null && !s.equals("")) {
-                testMoviedbApi_tv.setText(s);
+                // testMoviedbApi_tv.setText(s);
             }
         }
 
