@@ -10,7 +10,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.List;
@@ -18,17 +24,27 @@ import java.util.List;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
     private static final String TAG = MovieAdapter.class.getSimpleName();
 
-    private static int viewHolderCount;
+    JSONArray mJsonArray;
 
-    private int mNumberItems;
+    @Override
+    public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
+        try {
+            JSONObject imageUrlJson = mJsonArray.getJSONObject(position);
+            String imageUrl = imageUrlJson.getString("poster_path");
+            holder.bind(imageUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-    public MovieAdapter(int numberOfItems) {
-        mNumberItems = numberOfItems;
+    }
+
+    public MovieAdapter(JSONArray jsonArray) {
+        mJsonArray = jsonArray;
     }
 
     @Override
     public int getItemCount() {
-        return mNumberItems;
+        return mJsonArray.length();
     }
 
     @NonNull
@@ -40,37 +56,25 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         boolean attachParentImmediately = false;
 
         View view = inflater.inflate(layoutIdForListItem, viewGroup, attachParentImmediately);
-        MovieViewHolder viewHolder = new MovieViewHolder(view);
-
-        viewHolder.viewHolderIndex.setText("ViewHolder index: " + viewHolderCount);
-
-        viewHolderCount++;
-
-        Log.d(TAG, "onCreateViewHolder: number of view holders created: " + viewHolderCount);
+        MovieViewHolder viewHolder = new MovieViewHolder(view, context);
 
         return viewHolder;
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
-        Log.d(TAG, "onBindViewHolder: # " + position);
-        holder.bind(position);
-    }
 
     class MovieViewHolder extends RecyclerView.ViewHolder {
-        TextView listMovieNumberView;
-        TextView viewHolderIndex;
+        TextView mMoviePoster;
+        Context mContext;
 
-        public MovieViewHolder(View itemView) {
+        public MovieViewHolder(View itemView, Context context) {
             super(itemView);
 
-            listMovieNumberView = (TextView) itemView.findViewById(R.id.tv_item_number);
-            viewHolderIndex = (TextView) itemView.findViewById(R.id.tv_view_holder_instance);
-
+            mMoviePoster = (TextView) itemView.findViewById(R.id.iv_item_movie);
+            mContext = context;
         }
 
-        void bind(int listIndex) {
-            listMovieNumberView.setText(String.valueOf(listIndex));
+        void bind(String imageUrl) {
+            mMoviePoster.setText(imageUrl);
         }
     }
 }

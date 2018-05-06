@@ -10,6 +10,9 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.net.URL;
 
@@ -21,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
 
     private MovieAdapter mMovieAdapter;
     private RecyclerView mMoviesGrid;
+    private String mJsonResults;
+    private JSONArray mJsonArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,13 +39,26 @@ public class MainActivity extends AppCompatActivity {
 
         mMoviesGrid.setHasFixedSize(true);
 
-        mMovieAdapter = new MovieAdapter(NUM_LiST_ITEMS);
+        makeMoviedbSearchQuery("popular");
+
+        try {
+            JSONObject movieJson = new JSONObject(mJsonResults);
+            mJsonArray = movieJson.getJSONArray("results");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        mMovieAdapter = new MovieAdapter(mJsonArray);
         mMoviesGrid.setAdapter(mMovieAdapter);
     }
 
     private void makeMoviedbSearchQuery(String movieQuery) {
         URL moviedbSearchUrl = NetworkUtils.buildUrl(movieQuery);
-        new MoviedbAPIQueryTask().execute(moviedbSearchUrl);
+        try {
+            mJsonResults = new MoviedbAPIQueryTask().execute(moviedbSearchUrl).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public class MoviedbAPIQueryTask extends AsyncTask<URL, Void, String> {
