@@ -4,4 +4,10 @@
 
     <string name="moviedb_popular">Popular</string>
     <string name="moviedb_top_rated">Top Rated</string>
+
+    <string name="movie_poster_description">Awesome!</string>
+    <string name="movie_title_label">Title</string>
+    <string name="movie_release_date_label">Release Date</string>
+    <string name="movie_plot_synopsis_label">Plot Synopsis</string>
+    <string name="movie_vote_average_label">Vote Average</string>
 </resources>

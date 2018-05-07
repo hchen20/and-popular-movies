@@ -3,6 +3,7 @@ package popularmovies.udacity.com.popularmovies;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
@@ -20,8 +21,6 @@ import popularmovies.udacity.com.popularmovies.utils.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int NUM_LiST_ITEMS = 100;
-
     private MovieAdapter mMovieAdapter;
     private RecyclerView mMoviesGrid;
     private String mJsonResults;
@@ -34,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
         mMoviesGrid = (RecyclerView) findViewById(R.id.rv_movies);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        int numberOfColumns = 4;
+        GridLayoutManager layoutManager = new GridLayoutManager(this, numberOfColumns);
         mMoviesGrid.setLayoutManager(layoutManager);
 
         mMoviesGrid.setHasFixedSize(true);
@@ -42,8 +42,7 @@ public class MainActivity extends AppCompatActivity {
         makeMoviedbSearchQuery("popular");
 
         try {
-            JSONObject movieJson = new JSONObject(mJsonResults);
-            mJsonArray = movieJson.getJSONArray("results");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
         URL moviedbSearchUrl = NetworkUtils.buildUrl(movieQuery);
         try {
             mJsonResults = new MoviedbAPIQueryTask().execute(moviedbSearchUrl).get();
+            JSONObject movieJson = new JSONObject(mJsonResults);
+            mJsonArray = movieJson.getJSONArray("results");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -96,9 +97,13 @@ public class MainActivity extends AppCompatActivity {
 
         if (itemClickedId == R.id.action_popular) {
             makeMoviedbSearchQuery("popular");
+            mMovieAdapter = new MovieAdapter(mJsonArray);
+            mMoviesGrid.setAdapter(mMovieAdapter);
             return true;
         } else if (itemClickedId == R.id.action_top_rated) {
             makeMoviedbSearchQuery("top_rated");
+            mMovieAdapter = new MovieAdapter(mJsonArray);
+            mMoviesGrid.setAdapter(mMovieAdapter);
             return true;
         }
         return super.onOptionsItemSelected(item);

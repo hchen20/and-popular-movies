@@ -2,6 +2,7 @@ package popularmovies.udacity.com.popularmovies;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -63,18 +65,43 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
 
     class MovieViewHolder extends RecyclerView.ViewHolder {
-        TextView mMoviePoster;
+        private static final String MOVIE_DETAILS = "movie";
+        ImageView mMoviePoster;
         Context mContext;
 
         public MovieViewHolder(View itemView, Context context) {
             super(itemView);
 
-            mMoviePoster = (TextView) itemView.findViewById(R.id.iv_item_movie);
+            mMoviePoster = (ImageView) itemView.findViewById(R.id.iv_item_movie);
             mContext = context;
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    try {
+                        JSONObject detailedMovieInfo = mJsonArray.getJSONObject(position);
+
+                        Class detailedMovieActivity = MovieDetail.class;
+
+                        Intent startDetailedMovieIntent = new Intent(mContext, detailedMovieActivity);
+                        startDetailedMovieIntent.putExtra(MOVIE_DETAILS ,mJsonArray.optString(position).toString());
+                        mContext.startActivity(startDetailedMovieIntent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
 
         void bind(String imageUrl) {
-            mMoviePoster.setText(imageUrl);
+            String moviedbBaseUrl = "http://image.tmdb.org/t/p/w185";
+            String fullImageUrl = moviedbBaseUrl + imageUrl;
+
+            Picasso.with(mContext)
+                    .load(fullImageUrl)
+                    .into(mMoviePoster);
+
         }
     }
 }
