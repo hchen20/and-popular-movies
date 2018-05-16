@@ -1,5 +1,8 @@
 package popularmovies.udacity.com.popularmovies;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -39,16 +43,20 @@ public class MainActivity extends AppCompatActivity {
 
         mMoviesGrid.setHasFixedSize(true);
 
-        makeMoviedbSearchQuery("popular");
+        if (isOnline()) {
+            makeMoviedbSearchQuery("popular");
 
-        try {
+            try {
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            mMovieAdapter = new MovieAdapter(mJsonArray);
+            mMoviesGrid.setAdapter(mMovieAdapter);
+        } else {
+            Toast.makeText(this, "Please connect to the Internet", Toast.LENGTH_LONG).show();
         }
-
-        mMovieAdapter = new MovieAdapter(mJsonArray);
-        mMoviesGrid.setAdapter(mMovieAdapter);
     }
 
     private void makeMoviedbSearchQuery(String movieQuery) {
@@ -106,6 +114,15 @@ public class MainActivity extends AppCompatActivity {
             mMoviesGrid.setAdapter(mMovieAdapter);
             return true;
         }
-        return super.onOptionsItemSelected(item);
+        if (super.onOptionsItemSelected(item)) return true;
+        else
+            return false;
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

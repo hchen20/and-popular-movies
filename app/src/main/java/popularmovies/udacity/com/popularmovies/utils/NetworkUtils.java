@@ -1,5 +1,8 @@
 package popularmovies.udacity.com.popularmovies.utils;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 
 import java.io.IOException;
@@ -16,7 +19,7 @@ public class NetworkUtils {
     final static String MOVIEBD_BASE_URL = "https://api.themoviedb.org/3/movie";
     final static String PARAM_MOVIEDB_API = "api_key";
 
-    final static String moviedb_api = "****Place your api key here****";
+    final static String moviedb_api = "***Place your api key here***";
 
     public static URL buildUrl(String moviedbSearchQuery) {
         Uri builtUri = Uri.parse(MOVIEBD_BASE_URL).buildUpon()

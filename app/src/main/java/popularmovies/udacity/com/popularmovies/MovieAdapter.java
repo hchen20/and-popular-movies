@@ -46,6 +46,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     @Override
     public int getItemCount() {
+
+        if (mJsonArray == null) {
+            return 0;
+        }
         return mJsonArray.length();
     }
 
