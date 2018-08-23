@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mMoviesGrid;
     private String mJsonResults;
     private JSONArray mJsonArray;
+    private JSONArray mJsonReviews;
+    private JSONArray mJsonVideos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
+
+
 
     public class MoviedbAPIQueryTask extends AsyncTask<URL, Void, String> {
         @Override

@@ -3,6 +3,7 @@ package popularmovies.udacity.com.popularmovies;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -20,13 +21,19 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
+import java.net.URL;
 import java.util.List;
+
+import popularmovies.udacity.com.popularmovies.utils.NetworkUtils;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
     private static final String TAG = MovieAdapter.class.getSimpleName();
 
-    JSONArray mJsonArray;
+    private JSONArray mJsonArray;
+    private String mMovieReviews;
+    private JSONArray mMoveVideos;
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
@@ -43,6 +50,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public MovieAdapter(JSONArray jsonArray) {
         mJsonArray = jsonArray;
     }
+
 
     @Override
     public int getItemCount() {
@@ -69,7 +77,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
 
     class MovieViewHolder extends RecyclerView.ViewHolder {
+        // private static final String TAG = MovieViewHolder.class.getSimpleName();
         private static final String MOVIE_DETAILS = "movie";
+        private static final String MOVIE_REVIEWS= "reviews";
+        private static final String MOVIE_VIDEOS= "videos";
         ImageView mMoviePoster;
         Context mContext;
 
@@ -86,16 +97,58 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                     try {
                         JSONObject detailedMovieInfo = mJsonArray.getJSONObject(position);
 
+                        String movieId = detailedMovieInfo.getString("id");
+
+                        makeMovieReviewsQuery(movieId);
                         Class detailedMovieActivity = MovieDetail.class;
 
                         Intent startDetailedMovieIntent = new Intent(mContext, detailedMovieActivity);
-                        startDetailedMovieIntent.putExtra(MOVIE_DETAILS ,mJsonArray.optString(position).toString());
+                        startDetailedMovieIntent.putExtra(MOVIE_DETAILS ,mJsonArray.optString(position));
+                        startDetailedMovieIntent.putExtra(MOVIE_REVIEWS, mMovieReviews);
                         mContext.startActivity(startDetailedMovieIntent);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             });
+        }
+
+        public class MoviedbAPIQueryTask extends AsyncTask<URL, Void, String> {
+            @Override
+            protected void onPostExecute(String s) {
+                if (s != null && !s.equals("")) {
+                    // testMoviedbApi_tv.setText(s);
+                }
+            }
+
+            @Override
+            protected String doInBackground(URL... urls) {
+                URL searchUrl = urls[0];
+                String moviedbSearchResults = null;
+
+                try {
+                    moviedbSearchResults = NetworkUtils.getResponseFromHttpUrl(searchUrl);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return moviedbSearchResults;
+            }
+        }
+
+
+        private void makeMovieReviewsQuery(String movieQuery) {
+            String reviewsPath = "reviews";
+            URL moviedbSearchUrl = NetworkUtils.buildUrl(movieQuery, reviewsPath);
+            Log.d(TAG, "makeMovieReviewsQuery: "+ moviedbSearchUrl.toString());
+
+            try {
+                String reviews = new MoviedbAPIQueryTask().execute(moviedbSearchUrl).get();
+                JSONObject reviewJson = new JSONObject(reviews);
+                mMovieReviews = reviewJson.getJSONArray("results").toString();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         void bind(String imageUrl) {

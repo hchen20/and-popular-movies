@@ -19,11 +19,29 @@ public class NetworkUtils {
     final static String MOVIEBD_BASE_URL = "https://api.themoviedb.org/3/movie";
     final static String PARAM_MOVIEDB_API = "api_key";
 
-    final static String moviedb_api = "***Place your api key here***";
+    final static String moviedb_api = "your api key";
 
     public static URL buildUrl(String moviedbSearchQuery) {
         Uri builtUri = Uri.parse(MOVIEBD_BASE_URL).buildUpon()
                 .appendPath(moviedbSearchQuery)
+                .appendQueryParameter(PARAM_MOVIEDB_API, moviedb_api)
+                .build();
+
+        URL url = null;
+
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
+    public static URL buildUrl(String moviedbSearchQuery, String detail) {
+        Uri builtUri = Uri.parse(MOVIEBD_BASE_URL).buildUpon()
+                .appendPath(moviedbSearchQuery)
+                .appendPath(detail)
                 .appendQueryParameter(PARAM_MOVIEDB_API, moviedb_api)
                 .build();
 
