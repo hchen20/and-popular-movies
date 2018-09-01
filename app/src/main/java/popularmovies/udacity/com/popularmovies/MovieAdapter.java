@@ -33,7 +33,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     private JSONArray mJsonArray;
     private String mMovieReviews;
-    private JSONArray mMoveVideos;
+    private String mMovieTrailers;
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
@@ -100,11 +100,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                         String movieId = detailedMovieInfo.getString("id");
 
                         makeMovieReviewsQuery(movieId);
+                        makeMovieTrailersQuery(movieId);
                         Class detailedMovieActivity = MovieDetail.class;
 
                         Intent startDetailedMovieIntent = new Intent(mContext, detailedMovieActivity);
                         startDetailedMovieIntent.putExtra(MOVIE_DETAILS ,mJsonArray.optString(position));
                         startDetailedMovieIntent.putExtra(MOVIE_REVIEWS, mMovieReviews);
+                        Log.d(TAG, "onClick: " + mMovieTrailers);
+                        startDetailedMovieIntent.putExtra(MOVIE_VIDEOS, mMovieTrailers);
                         mContext.startActivity(startDetailedMovieIntent);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -148,6 +151,20 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                 mMovieReviews = reviewJson.getJSONArray("results").toString();
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+
+        private void makeMovieTrailersQuery(String trailerQuery) {
+            String trailersPath = "videos";
+            URL moviedbSearchUrl = NetworkUtils.buildUrl(trailerQuery, trailersPath);
+            Log.d(TAG, "makeMovieTrailersQuery: " + moviedbSearchUrl.toString());
+
+            try {
+                String trailers = new MoviedbAPIQueryTask().execute(moviedbSearchUrl).get();
+                JSONObject trailerJson = new JSONObject(trailers);
+                mMovieTrailers = trailerJson.getJSONArray("results").toString();
+            } catch (Exception e) {
+                Log.d(TAG, "makeMovieTrailersQuery: " + e.getMessage());
             }
         }
 

@@ -19,7 +19,7 @@ public class NetworkUtils {
     final static String MOVIEBD_BASE_URL = "https://api.themoviedb.org/3/movie";
     final static String PARAM_MOVIEDB_API = "api_key";
 
-    final static String moviedb_api = "your api key";
+    final static String moviedb_api = "fb3ae32b98663668e866118ececfba72";
 
     public static URL buildUrl(String moviedbSearchQuery) {
         Uri builtUri = Uri.parse(MOVIEBD_BASE_URL).buildUpon()
