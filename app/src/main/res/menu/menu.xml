@@ -14,7 +14,7 @@
         android:title="@string/moviedb_top_rated" />
 
     <item
-        android:id="@+id/action_top_rated"
+        android:id="@+id/action_favorite"
         android:orderInCategory="1"
         app:showAsAction="never"
         android:title="@string/moviedb_favorites" />

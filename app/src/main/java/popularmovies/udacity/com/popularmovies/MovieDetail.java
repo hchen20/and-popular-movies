@@ -1,11 +1,14 @@
 package popularmovies.udacity.com.popularmovies;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -17,6 +20,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -34,6 +38,8 @@ public class MovieDetail extends AppCompatActivity {
     private static final String MOVIE_VIEDOS = "videos";
     private final String moviedbBaseUrl = "http://image.tmdb.org/t/p/w185";
     private static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=";
+    private Context mMainActivity;
+
 
     private TextView mTitle;
     private TextView mReleaseDate;
@@ -51,6 +57,8 @@ public class MovieDetail extends AppCompatActivity {
     private ListView mTrailers;
     private TextView mReviews;
 
+    private boolean mIsFavorited;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +75,8 @@ public class MovieDetail extends AppCompatActivity {
 
         mTrailerNames = new ArrayList<String>();
         mTrailerKeys = new ArrayList<String>();
+
+        mIsFavorited = isFavorited();
 
         try {
             mMovieDetails = new JSONObject(getIntent().getStringExtra(MOVIE_DETAILS));
@@ -109,30 +119,68 @@ public class MovieDetail extends AppCompatActivity {
         View.OnClickListener favoriteButtonListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean alreadyFavorite = true;
-                if (alreadyFavorite) {
-                    return;
-                } else {
+
+                if (isFavorited()) {
+
+                    // Already favorite, click again to un-favorite it (delete)
+                    // Retrieve the id of the movie to delete
                     try {
+                        String id =  mMovieDetails.getString("id");
+                        Uri uri = MoviesContract.MovieEntry.CONTENT_URI;
+                        uri = uri.buildUpon().appendPath(id).build();
+
+                        // Delete a single row of data using a ContentResolver
+                        int deleted = getContentResolver().delete(uri, "movie_id="+id, null);
+                        Log.d(TAG, "onClick: delete " + deleted);
+
+                        // Restart the loader to re-query for all favorite movie after a deletion
+                        getSupportLoaderManager().restartLoader(MainActivity.MOVIE_LOADER_ID, null, new MainActivity());
+
+                    } catch (Exception e) {
+                        Log.d(TAG, "onClick: " + e.getMessage());
+                    }
+                    mFavorite.setText("Favorite");
+                    Toast.makeText(getBaseContext(), "Unfavorited", Toast.LENGTH_LONG).show();
+                    finish();
+                } else {
+
+                    try {
+                        // Create a new empty ContentValues object and put movie id and title into it
                         ContentValues contentValues = new ContentValues();
                         contentValues.put(MoviesContract.MovieEntry.COLUMN_MOVIE_ID, mMovieDetails.getString("id"));
                         contentValues.put(MoviesContract.MovieEntry.COLUMN_MOVIE_TITLE, mMovieDetails.getString("title"));
+                        Log.d(TAG, "onClick: content value id " + mMovieDetails.getString("id"));
 
                         // Insert the content values via a ContentResolver
                         Uri uri = getContentResolver().insert(MoviesContract.MovieEntry.CONTENT_URI, contentValues);
 
                         // Display the URI that's returned with a Toast
+                        if (uri != null) {
+                            Toast.makeText(getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();;
+                        }
+                        mFavorite.setText("Already Favorited");
+                        Toast.makeText(getBaseContext(), "Favoriting", Toast.LENGTH_LONG).show();
+                        // Finish activity
+                        finish();
 
                     } catch (Exception e) {
                         Log.d(TAG, "onClick: " + e.getMessage());
                     }
                 }
-                mFavorite.setText("Already Favorited");
+
 
             }
         };
-
+    
         mFavorite.setOnClickListener(favoriteButtonListener);
+        
+        if (isFavorited()) {
+            Log.d(TAG, "onCreate: check is favorite");
+            mFavorite.setText("Already Favorited");
+        } else {
+            Log.d(TAG, "onCreate: not favorite");
+            mFavorite.setText("Favorite");
+        }
     }
 
     private void setMovieReviews() {
@@ -158,6 +206,27 @@ public class MovieDetail extends AppCompatActivity {
         } catch (Exception e) {
             Log.d(TAG, "setMovieTrailers: " + e.getMessage());
         }
+    }
+
+    private boolean isFavorited() {
+        Cursor c = null;
+        try {
+            String id = mMovieDetails.getString("id");
+            Uri uri = MoviesContract.MovieEntry.CONTENT_URI;
+            uri = uri.buildUpon().appendPath(id).build();
+            c = getContentResolver().query(uri,
+                    null,
+                    "movie_id="+id,
+                    null,
+                    null,
+                    null);
+        } catch (Exception e) {
+            Log.d(TAG, "isFavorited: " + e.getMessage());
+        }
+
+        if (c == null || c.getCount() == 0)
+            return false;
+        return true;
     }
 
 

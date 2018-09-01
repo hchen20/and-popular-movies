@@ -21,6 +21,11 @@
         </activity>
         <activity android:name=".MovieDetail"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+
+        <provider
+            android:authorities="popularmovies.udacity.com.popularmovies"
+            android:name="popularmovies.udacity.com.popularmovies.data.MovieContentProvider"
+            android:exported="false" />
     </application>
 
 </manifest>
