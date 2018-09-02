@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity
             mMoviesGrid.setAdapter(mMovieAdapter);
             return true;
         } else if (itemClickedId == R.id.action_favorite) {
-            mMoviesGrid.setLayoutManager(linearLayoutManager);
+            mMoviesGrid.setLayoutManager(layoutManager);
             // mCustomAdapter = new CustomCursorAdapter(this);
             mMoviesGrid.setAdapter(mCustomAdapter);
             return true;

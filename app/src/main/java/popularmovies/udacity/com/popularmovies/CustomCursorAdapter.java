@@ -10,10 +10,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import popularmovies.udacity.com.popularmovies.data.MoviesContract;
 
 public class CustomCursorAdapter
-        extends RecyclerView.Adapter<CustomCursorAdapter.MovieViewHolder> {
+        extends MovieAdapter {
     private static final String TAG = CustomCursorAdapter.class.getSimpleName();
 
     // Class variables for Cursor that holds favorite movie data and the Context
@@ -22,42 +25,47 @@ public class CustomCursorAdapter
 
     // Constructor that initializes the Context
     public CustomCursorAdapter(Context context) {
+        super();
         this.mContext = context;
     }
 
-    // Called when ViewHolders are created to fill a RecyclerView
-    @NonNull
-    @Override
-    public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the favorite_movie_layout to a view
-        View view = LayoutInflater.from(mContext)
-                        .inflate(R.layout.favorite_movie_layout, parent, false);
-        return new MovieViewHolder(view);
+    public void setID() {
+
     }
+
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
 
 
-        int titleIndex = mCursor.getColumnIndex(MoviesContract.MovieEntry.COLUMN_MOVIE_TITLE);
-        Log.d(TAG, "onBindViewHolder: title index" + titleIndex);
+        int imageUrlIndex = mCursor.getColumnIndex(MoviesContract.MovieEntry.COLUMN_MOVIE_IMAGE_URL);
+        int idIndex = mCursor.getColumnIndex(MoviesContract.MovieEntry.COLUMN_MOVIE_ID);
+        Log.d(TAG, "onBindViewHolder: title index" + imageUrlIndex);
 
         // Get to the right location in the cursor
         mCursor.moveToPosition(position);
 
         // Get the wanted values
-        String title = mCursor.getString(titleIndex);
-        Log.d(TAG, "onBindViewHolder: title" + title);
+        String image_url = mCursor.getString(imageUrlIndex);
+        String id = mCursor.getString(idIndex);
+        Log.d(TAG, "onBindViewHolder: title" + image_url);
+        Log.d(TAG, "onBindViewHolder: id" + id);
 
-        // Set title text
-        holder.favoriteMovieTitleView.setText(title);
+        // Set title text and id
+        holder.bind(image_url);
+        holder.setMovieId(id);
 
     }
 
-    /**
-     * When data changes and a re-query occurs, this function swaps the old Cursor
-     * with a newly updated Cursor (Cursor c) that is passed in
-     */
+    @Override
+    public int getItemCount() {
+
+        if (mCursor == null) {
+            return 0;
+        }
+        return mCursor.getCount();
+    }
+
     public Cursor swapCursor(Cursor c) {
         // Check if this Cursor is the same as the previous cursor (mCursor)
         if (mCursor == c) {
@@ -75,24 +83,5 @@ public class CustomCursorAdapter
         }
 
         return temp;
-    }
-
-    // Returns the number of items to display
-    @Override
-    public int getItemCount() {
-        if (mCursor == null)
-            return 0;
-        return mCursor.getCount();
-    }
-
-    // Inner class for creating ViewHolders
-    class MovieViewHolder extends RecyclerView.ViewHolder {
-        // Class variable for favorite movie titles
-        TextView favoriteMovieTitleView;
-
-        public MovieViewHolder(View itemView) {
-            super(itemView);
-            favoriteMovieTitleView = (TextView) itemView.findViewById(R.id.favorite_movie_title);
-        }
     }
 }

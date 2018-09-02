@@ -35,14 +35,15 @@ public class MoviesContract {
         public static final String _ID = "id";
         public static final String COLUMN_MOVIE_ID = "movie_id";
         public static final String COLUMN_MOVIE_TITLE = "movie_title";
+        public static final String COLUMN_MOVIE_IMAGE_URL = "movie_image_url";
 
         /*
 
         Movies:
 
-        _id     movie_id    title
-         1      123         Iron Man
-         2      332         Thor
+        _id     movie_id    title        movie url
+         1      123         Iron Man     asd1293ijd
+         2      332         Thor         1238123jfse
          .
          .
          .

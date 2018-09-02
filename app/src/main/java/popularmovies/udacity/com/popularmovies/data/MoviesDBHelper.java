@@ -14,7 +14,7 @@ public class MoviesDBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "movies.db";
 
     // Increment the database version to change the database schema
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public MoviesDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -30,7 +30,8 @@ public class MoviesDBHelper extends SQLiteOpenHelper {
                 "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
                 MovieEntry._ID + " INTEGER PRIMARY KEY, " +
                 MovieEntry.COLUMN_MOVIE_ID + " TEXT NOT NULL, " +
-                MovieEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL);";
+                MovieEntry.COLUMN_MOVIE_TITLE + " TEXT NOT NULL, " +
+                MovieEntry.COLUMN_MOVIE_IMAGE_URL + " TEXT NOT NULL);";
 
         db.execSQL(SQL_CREATE_MOVIE_TABLE);
 

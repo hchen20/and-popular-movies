@@ -31,9 +31,8 @@ import popularmovies.udacity.com.popularmovies.utils.NetworkUtils;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
     private static final String TAG = MovieAdapter.class.getSimpleName();
 
-    private JSONArray mJsonArray;
-    private String mMovieReviews;
-    private String mMovieTrailers;
+    protected JSONArray mJsonArray;
+
 
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
@@ -47,8 +46,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     }
 
+    public MovieAdapter() {
+
+    }
+
     public MovieAdapter(JSONArray jsonArray) {
-        mJsonArray = jsonArray;
+        this.mJsonArray = jsonArray;
     }
 
 
@@ -81,8 +84,16 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         private static final String MOVIE_DETAILS = "movie";
         private static final String MOVIE_REVIEWS= "reviews";
         private static final String MOVIE_VIDEOS= "videos";
+        private String mMovieReviews;
+        private String mMovieTrailers;
+        private String mMovieDetail;
         ImageView mMoviePoster;
         Context mContext;
+        private String movieId;
+
+        public void setMovieId(String id) {
+            this.movieId = id;
+        }
 
         public MovieViewHolder(View itemView, Context context) {
             super(itemView);
@@ -95,16 +106,25 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     try {
-                        JSONObject detailedMovieInfo = mJsonArray.getJSONObject(position);
+                        JSONObject detailedMovieInfo;
+                        Class detailedMovieActivity = MovieDetail.class;
+                        Intent startDetailedMovieIntent = new Intent(mContext, detailedMovieActivity);
 
-                        String movieId = detailedMovieInfo.getString("id");
+                        if (movieId == null) {
+                            detailedMovieInfo = mJsonArray.getJSONObject(position);
+                            movieId = detailedMovieInfo.getString("id");
+                            startDetailedMovieIntent.putExtra(MOVIE_DETAILS ,mJsonArray.optString(position));
+                        } else {
+                            makeSingeMovieQuery(movieId);
+                            startDetailedMovieIntent.putExtra(MOVIE_DETAILS ,mMovieDetail);
+                        }
 
                         makeMovieReviewsQuery(movieId);
                         makeMovieTrailersQuery(movieId);
-                        Class detailedMovieActivity = MovieDetail.class;
 
-                        Intent startDetailedMovieIntent = new Intent(mContext, detailedMovieActivity);
-                        startDetailedMovieIntent.putExtra(MOVIE_DETAILS ,mJsonArray.optString(position));
+
+
+
                         startDetailedMovieIntent.putExtra(MOVIE_REVIEWS, mMovieReviews);
                         Log.d(TAG, "onClick: " + mMovieTrailers);
                         startDetailedMovieIntent.putExtra(MOVIE_VIDEOS, mMovieTrailers);
@@ -149,6 +169,19 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                 String reviews = new MoviedbAPIQueryTask().execute(moviedbSearchUrl).get();
                 JSONObject reviewJson = new JSONObject(reviews);
                 mMovieReviews = reviewJson.getJSONArray("results").toString();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void makeSingeMovieQuery(String id) {
+            String reviewsPath = "reviews";
+            URL moviedbSearchUrl = NetworkUtils.buildUrl(id);
+            Log.d(TAG, "makeMovieReviewsQuery: "+ moviedbSearchUrl.toString());
+
+            try {
+                mMovieDetail = new MoviedbAPIQueryTask().execute(moviedbSearchUrl).get();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Movie;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -38,8 +39,6 @@ public class MovieDetail extends AppCompatActivity {
     private static final String MOVIE_VIEDOS = "videos";
     private final String moviedbBaseUrl = "http://image.tmdb.org/t/p/w185";
     private static final String YOUTUBE_URL = "https://www.youtube.com/watch?v=";
-    private Context mMainActivity;
-
 
     private TextView mTitle;
     private TextView mReleaseDate;
@@ -149,6 +148,7 @@ public class MovieDetail extends AppCompatActivity {
                         ContentValues contentValues = new ContentValues();
                         contentValues.put(MoviesContract.MovieEntry.COLUMN_MOVIE_ID, mMovieDetails.getString("id"));
                         contentValues.put(MoviesContract.MovieEntry.COLUMN_MOVIE_TITLE, mMovieDetails.getString("title"));
+                        contentValues.put(MoviesContract.MovieEntry.COLUMN_MOVIE_IMAGE_URL, mMovieDetails.getString("poster_path"));
                         Log.d(TAG, "onClick: content value id " + mMovieDetails.getString("id"));
 
                         // Insert the content values via a ContentResolver
